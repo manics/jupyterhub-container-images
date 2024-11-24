@@ -1,0 +1,55 @@
+on:
+  push:
+
+env:
+  VERSION: 5.0.0
+  # VERSION: 5.2.1dev
+  # If we're on this branch don't bother fetching every tag since we know
+  # this will be the most recent tag, i.e. builds on this branch should always
+  # update the `latest` tag
+  LATEST_BRANCH: main
+  # Only push images if this workflow is run on this branch
+  # This ensures if a a new branch is created in this repo it won't automatically
+  # push an image.
+  # If this is a backport then change this to the name of the backports branch
+  PUSH_BRANCH: main
+
+jobs:
+  tags:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 2
+    outputs:
+      apply: ${{ steps.plan.outputs.apply }}
+
+    steps:
+      - name: Get tags
+        id: quayio
+        uses: manics/action-get-quayio-tags@dev
+        with:
+          repository: jupyterhub/jupyterhub
+          version: ${{ env.VERSION }}
+          # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+          # If this is not LATEST_BRANCH, nor is it a pull request against LATEST_BRANCH
+          # assume it's a backport branch which means we need to get all tags to work out
+          # which MAJOR and MAJOR.MINOR aliases are needed.
+          allTags: ${{ (github.ref != format('refs/heads/{0}', env.LATEST_BRANCH)) && (github.base_ref != format('refs/heads/{0}', env.LATEST_BRANCH)) }}
+          strict: "true"
+
+      - name: Print quayio output
+        run: |
+          echo "${{ steps.quayio.outputs.tags }}"
+          echo "${{ steps.quayio.outputs.buildNumber }}"
+          echo "refs/heads{0} ${{ github.ref != format('refs/heads/{0}', env.LATEST_BRANCH) }}"
+
+      - name: Calculate tags
+        id: tags
+        uses: manics/action-major-minor-tag-calculator@allow-external-tag
+        with:
+          tagList: ${{ steps.quayio.outputs.tags }}
+          currentTag: ${{ env.VERSION }}-${{ steps.quayio.outputs.buildNumber }}
+          prefix: "example/image:"
+
+      - name: Print tags
+        run: |
+          echo "${{ steps.tags.outputs.tags }}"
+      
