@@ -21,9 +21,11 @@ env:
   # This ensures if a a new branch is created in this repo it won't automatically
   # push an image.
   # If this is a backport then change this to the name of the backports branch
-  PUBLISH_BRANCH: DISABLED-main
+  PUBLISH_BRANCH: main
 
-  IMAGE: jupyterhub/jupyterhub
+  # IMAGE: jupyterhub/jupyterhub
+  IMAGE: manics/jupyterhub-image-test
+  PUBLISH_DOCKERIO: "false"
 
 jobs:
   tag:
@@ -114,7 +116,9 @@ jobs:
         if: env.PUBLIC == 'true'
         run: |
           docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" "${{ env.REGISTRY }}"
-          docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}" docker.io
+          if [ "${{ env.PUBLISH_DOCKERIO }}" = "true" ]; then
+            docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}" docker.io
+          fi
 
       # image: env.IMAGE
       #
@@ -131,7 +135,7 @@ jobs:
           currentTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}:
-            ${{ env.PUBLIC == 'true' && format('{0}:', env.IMAGE) || '' }}
+            ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.IMAGE) || '' }}
 
       - name: Print tags
         run: |
