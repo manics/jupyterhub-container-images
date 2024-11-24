@@ -2,8 +2,6 @@ on:
   push:
 
 env:
-  VERSION: 5.0.0
-  # VERSION: 5.2.1dev
   # If we're on this branch don't bother fetching every tag since we know
   # this will be the most recent tag, i.e. builds on this branch should always
   # update the `latest` tag
@@ -12,22 +10,36 @@ env:
   # This ensures if a a new branch is created in this repo it won't automatically
   # push an image.
   # If this is a backport then change this to the name of the backports branch
-  PUSH_BRANCH: main
+  PUBLISH_BRANCH: DISABLED-main
 
 jobs:
-  tags:
+  tag:
     runs-on: ubuntu-22.04
     timeout-minutes: 2
     outputs:
-      apply: ${{ steps.plan.outputs.apply }}
+      existing-tags: ${{ steps.quayio.outputs.tags }}
+      new-tag: ${{ steps.new.outputs.TAG }}
 
     steps:
-      - name: Get tags
+      - uses: actions/checkout@v4
+
+      - name: JupyterHub version
+        id: version
+        run: |
+          VERSION=$(grep '^jupyterhub==' base/requirements.txt | cut -d= -f3)
+          if [[ $VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Failed to get JupyterHub version"
+            exit 1
+          fi
+
+      - name: Get build-number by looking at existing tags
         id: quayio
         uses: manics/action-get-quayio-tags@dev
         with:
           repository: jupyterhub/jupyterhub
-          version: ${{ env.VERSION }}
+          version: ${{ steps.version.outputs.VERSION }}
           # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
           # If this is not LATEST_BRANCH, nor is it a pull request against LATEST_BRANCH
           # assume it's a backport branch which means we need to get all tags to work out
@@ -35,21 +47,90 @@ jobs:
           allTags: ${{ (github.ref != format('refs/heads/{0}', env.LATEST_BRANCH)) && (github.base_ref != format('refs/heads/{0}', env.LATEST_BRANCH)) }}
           strict: "true"
 
-      - name: Print quayio output
+      - name: Get new tag
+        id: new
         run: |
-          echo "${{ steps.quayio.outputs.tags }}"
-          echo "${{ steps.quayio.outputs.buildNumber }}"
-          echo "refs/heads{0} ${{ github.ref != format('refs/heads/{0}', env.LATEST_BRANCH) }}"
+          echo "TAG=${{ steps.version.outputs.VERSION }}-${{ steps.quayio.outputs.buildNumber }}"
 
+  publish-docker:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    needs:
+      - tag
+
+    services:
+      # So that we can test this in PRs/branches
+      local-registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Should we push this image to a public registry?
+        run: |
+          if [ "${{ github.ref == format('refs/heads/{0}', env.PUBLISH_BRANCH) }}" = "true" ]; then
+              echo "REGISTRY=quay.io/" >> $GITHUB_ENV
+          else
+              echo "REGISTRY=localhost:5000/" >> $GITHUB_ENV
+          fi
+
+      - uses: actions/checkout@v4
+
+      # Setup docker to build for multiple platforms, see:
+      # https://github.com/docker/build-push-action/tree/v2.4.0#usage
+      # https://github.com/docker/build-push-action/blob/v2.4.0/docs/advanced/multi-platform.md
+      - name: Set up QEMU (for docker buildx)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx (for multi-arch builds)
+        uses: docker/setup-buildx-action@v3
+        with:
+          # Allows pushing to registry on localhost:5000
+          driver-opts: network=host
+
+      - name: Setup push rights to Docker Hub
+        # This was setup by...
+        # 1. Creating a [Robot Account](https://quay.io/organization/jupyterhub?tab=robots) in the JupyterHub
+        # .  Quay.io org
+        # 2. Giving it enough permissions to push to the jupyterhub and singleuser images
+        # 3. Putting the robot account's username and password in GitHub actions environment
+        if: env.REGISTRY != 'localhost:5000/'
+        run: |
+          docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" "${{ env.REGISTRY }}"
+          docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}" docker.io
+
+      # image: jupyterhub/jupyterhub
+      #
+      # https://github.com/jupyterhub/action-major-minor-tag-calculator
+      # If this is a tagged build this will return additional parent tags.
+      # E.g. 1.2.3 is expanded to Docker tags
+      # [{prefix}:1.2.3, {prefix}:1.2, {prefix}:1, {prefix}:latest] unless
+      # this is a backported tag in which case the newer tags aren't updated.
       - name: Calculate tags
-        id: tags
+        id: jupyterhubtags
         uses: manics/action-major-minor-tag-calculator@allow-external-tag
         with:
-          tagList: ${{ steps.quayio.outputs.tags }}
-          currentTag: ${{ env.VERSION }}-${{ steps.quayio.outputs.buildNumber }}
-          prefix: "example/image:"
+          tagList: ${{ needs.tag.outputs.existing-tags }}
+          currentTag: ${{ needs.tag.outputs.new-tag }}
+          prefix: >-
+            ${{ env.REGISTRY }}jupyterhub/jupyterhub:
+            jupyterhub/jupyterhub:
+          defaultTag: "${{ env.REGISTRY }}jupyterhub/jupyterhub:noref"
 
       - name: Print tags
         run: |
-          echo "${{ steps.tags.outputs.tags }}"
-      
+          echo "Existing tags: ${{ needs.tag.outputs.existing-tags }}"
+          echo "New tags: ${{ needs.tag.outputs.new-tag }}"
+          echo "Image tags: ${{ steps.jupyterhubtags.outputs.tags }}"
+
+      - name: Build and push jupyterhub
+        uses: docker/build-push-action@v6
+        with:
+          context: base
+          platforms: linux/amd64,linux/arm64
+          push: true
+          # tags parameter must be a string input so convert `gettags` JSON
+          # array into a comma separated list of tags
+          tags: ${{ join(fromJson(steps.jupyterhubtags.outputs.tags)) }}
