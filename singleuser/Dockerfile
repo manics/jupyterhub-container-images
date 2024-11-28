@@ -3,9 +3,7 @@
 
 ARG BASE_IMAGE=quay.io/jupyter/base-notebook
 FROM $BASE_IMAGE
-MAINTAINER Project Jupyter <jupyter@googlegroups.com>
+LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
 
-ADD install_jupyterhub /tmp/install_jupyterhub
-ARG JUPYTERHUB_VERSION=git:HEAD
-# install pinned jupyterhub
-RUN python3 /tmp/install_jupyterhub
+ARG JUPYTERHUB_VERSION=""
+RUN if [ -n "$JUPYTERHUB_VERSION" ]; then python3 -mpip install --no-cache --upgrade --upgrade-strategy only-if-needed jupyterhub=="$JUPYTERHUB_VERSION"; fi
