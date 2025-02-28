@@ -66,7 +66,7 @@ jobs:
 
       - name: Get build-number by looking at existing tags
         id: quayio
-        uses: manics/action-get-quayio-tags@main
+        uses: manics/action-get-quayio-tags@v0.1.0
         with:
           repository: ${{ env.IMAGE }}
           version: ${{ steps.version.outputs.VERSION }}
@@ -144,7 +144,7 @@ jobs:
       # this is a backported tag in which case the newer tags aren't updated.
       - name: Calculate tags
         id: jupyterhubtags
-        uses: manics/action-major-minor-tag-calculator@allow-external-tag
+        uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
           tagList: ${{ needs.tag.outputs.existing-tags }}
           currentTag: ${{ needs.tag.outputs.new-tag }}
@@ -174,7 +174,7 @@ jobs:
       #
       - name: Get list of jupyterhub-onbuild tags
         id: onbuildtags
-        uses: manics/action-major-minor-tag-calculator@allow-external-tag
+        uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
           tagList: ${{ needs.tag.outputs.existing-tags }}
           currentTag: ${{ needs.tag.outputs.new-tag }}
@@ -198,7 +198,7 @@ jobs:
       #
       - name: Get list of jupyterhub-demo tags
         id: demotags
-        uses: manics/action-major-minor-tag-calculator@allow-external-tag
+        uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
           tagList: ${{ needs.tag.outputs.existing-tags }}
           currentTag: ${{ needs.tag.outputs.new-tag }}
@@ -222,7 +222,7 @@ jobs:
       #
       - name: Get list of jupyterhub/singleuser tags
         id: singleusertags
-        uses: manics/action-major-minor-tag-calculator@allow-external-tag
+        uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
           tagList: ${{ needs.tag.outputs.existing-tags }}
           currentTag: ${{ needs.tag.outputs.new-tag }}
