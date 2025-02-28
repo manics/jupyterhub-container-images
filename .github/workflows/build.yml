@@ -146,8 +146,8 @@ jobs:
         id: jupyterhubtags
         uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
-          tagList: ${{ needs.tag.outputs.existing-tags }}
-          currentTag: ${{ needs.tag.outputs.new-tag }}
+          existingTags: ${{ needs.tag.outputs.existing-tags }}
+          newTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.IMAGE) || '' }}
@@ -176,8 +176,8 @@ jobs:
         id: onbuildtags
         uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
-          tagList: ${{ needs.tag.outputs.existing-tags }}
-          currentTag: ${{ needs.tag.outputs.new-tag }}
+          existingTags: ${{ needs.tag.outputs.existing-tags }}
+          newTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}-onbuild:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}-onbuild:', env.IMAGE) || '' }}
@@ -200,8 +200,8 @@ jobs:
         id: demotags
         uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
-          tagList: ${{ needs.tag.outputs.existing-tags }}
-          currentTag: ${{ needs.tag.outputs.new-tag }}
+          existingTags: ${{ needs.tag.outputs.existing-tags }}
+          newTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}-demo:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}-demo:', env.IMAGE) || '' }}
@@ -224,8 +224,8 @@ jobs:
         id: singleusertags
         uses: jupyterhub/action-major-minor-tag-calculator@v3
         with:
-          tagList: ${{ needs.tag.outputs.existing-tags }}
-          currentTag: ${{ needs.tag.outputs.new-tag }}
+          existingTags: ${{ needs.tag.outputs.existing-tags }}
+          newTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.SINGLEUSER }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.SINGLEUSER) || '' }}
