@@ -1,0 +1,17 @@
+# dependabot.yaml reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  # Maintain dependencies in our GitHub Workflows
+  - package-ecosystem: github-actions
+    directory: /
+    labels:
+      - dependencies
+    schedule:
+      interval: monthly
+  # Bump base/requirements.txt
+  - package-ecosystem: pip
+    directory: /base
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
