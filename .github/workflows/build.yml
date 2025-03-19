@@ -41,7 +41,7 @@ env:
 
 jobs:
   tag:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     outputs:
       existing-tags: ${{ steps.quayio.outputs.tags }}
@@ -83,7 +83,7 @@ jobs:
           echo "TAG=${{ steps.version.outputs.VERSION }}-${{ steps.quayio.outputs.buildNumber }}" >> $GITHUB_OUTPUT
 
   publish-docker:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs:
       - tag
