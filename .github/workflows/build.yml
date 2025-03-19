@@ -39,6 +39,9 @@ env:
   CACHE_FROM: type=gha
   CACHE_TO: type=gha,mode=max
 
+permissions:
+  contents: read
+
 jobs:
   tag:
     runs-on: ubuntu-24.04

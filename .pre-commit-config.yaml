@@ -16,11 +16,12 @@ ci:
 repos:
   # https://github.com/pre-commit/mirrors-prettier is not maintained
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.4.2
+    rev: v3.5.3
     hooks:
       - id: prettier
 
+  # Static security analysis of GitHub actions https://github.com/woodruffw/zizmor
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.1.1
+    rev: v1.5.1
     hooks:
       - id: zizmor
