@@ -20,3 +20,12 @@ where `MAJOR.MINOR.PATCH` is the JupyterHub version.
 ## Publishing backports
 
 Backports are published in their own branches.
+
+## Images
+
+The following images are published by this repository:
+
+- jupyterhub
+- jupyterhub-onbuild
+- jupyterhub-demo
+- jupyterhub-singleuser
