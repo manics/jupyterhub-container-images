@@ -244,3 +244,26 @@ jobs:
           tags: ${{ join(fromJson(steps.singleusertags.outputs.tags)) }}
           cache-from: ${{ env.CACHE_FROM }}
           cache-to: ${{ env.CACHE_TO }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: tests/dev-requirements.txt
+
+      - name: Install test dependencies
+        run: |
+          python -mpip install -r tests/dev-requirements.txt
+          python -mplaywright install chromium
+
+      - name: Test demo image
+        run: |
+          DEMO_IMAGE=${{ fromJson(steps.demotags.outputs.tags)[0] }}
+          docker run -d --name hub -p8000:8000 "$DEMO_IMAGE"
+          sleep 5
+          python -mpytest
+
+      - name: Get logs, including on failure
+        if: always()
+        run: docker logs hub

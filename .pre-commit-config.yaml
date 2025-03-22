@@ -20,6 +20,14 @@ repos:
     hooks:
       - id: prettier
 
+  # autoformat and lint Python code
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.4
+    hooks:
+      - id: ruff
+        args: ["--select=I", "--fix", "--show-fixes"]
+      - id: ruff-format
+
   # Static security analysis of GitHub actions https://github.com/woodruffw/zizmor
   - repo: https://github.com/woodruffw/zizmor-pre-commit
     rev: v1.5.1
