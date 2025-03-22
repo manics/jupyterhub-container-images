@@ -119,13 +119,15 @@ jobs:
       - name: Set up QEMU (for docker buildx)
         uses: docker/setup-qemu-action@v3
 
+      # We never run or use untrusted code so cache-poisoning shouldn't be
+      # possible other than if a dependency or action is compromised
       - name: Set up Docker Buildx (for multi-arch builds)
         uses: docker/setup-buildx-action@v3 # zizmor: ignore[cache-poisoning]
         with:
           # Allows pushing to registry on localhost:5000
           driver-opts: network=host
 
-      - name: Setup push rights to Docker Hub # zizmor: ignore[template-injection]
+      - name: Setup push rights to Docker Hub
         # This was setup by...
         # 1. Creating a [Robot Account](https://quay.io/organization/jupyterhub?tab=robots) in the JupyterHub
         # .  Quay.io org
@@ -162,7 +164,7 @@ jobs:
           echo "Image tags: ${{ steps.jupyterhubtags.outputs.tags }}"
 
       - name: Build and push jupyterhub
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6 # zizmor: ignore[cache-poisoning]
         with:
           context: base
           platforms: linux/amd64,linux/arm64
@@ -257,7 +259,7 @@ jobs:
           python -mpip install -r tests/dev-requirements.txt
           python -mplaywright install chromium
 
-      - name: Test demo image
+      - name: Test demo image # zizmor: ignore[template-injection]
         run: |
           DEMO_IMAGE=${{ fromJson(steps.demotags.outputs.tags)[0] }}
           docker run -d --name hub -p8000:8000 "$DEMO_IMAGE"
