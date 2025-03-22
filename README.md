@@ -20,6 +20,7 @@ where `MAJOR.MINOR.PATCH` is the JupyterHub version.
 ## Publishing backports
 
 Backports are published in their own branches.
+For example, see https://github.com/manics/jupyterhub-container-images/compare/main..4.x
 
 ## Images
 
