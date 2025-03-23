@@ -30,10 +30,9 @@ env:
   # If this is a backport then change this to the name of the backports branch
   PUBLISH_BRANCH: main
 
-  # IMAGE: jupyterhub/jupyterhub
-  IMAGE: manics/jupyterhub-image-test
-  SINGLEUSER: manics/jupyterhub-singleuser-image-test
-  PUBLISH_DOCKERIO: "false"
+  IMAGE: jupyterhub/jupyterhub
+  SINGLEUSER: jupyterhub/singleuser
+  PUBLISH_DOCKERIO: "true"
 
   # Enable caching across builds, set to "" to disable
   CACHE_FROM: type=gha
@@ -69,7 +68,7 @@ jobs:
 
       - name: Get build-number by looking at existing tags
         id: quayio
-        uses: manics/action-get-quayio-tags@v0.1.0
+        uses: jupyterhub/action-get-quayio-tags@v0.1.0
         with:
           repository: ${{ env.IMAGE }}
           version: ${{ steps.version.outputs.VERSION }}
