@@ -190,7 +190,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           build-args: |
-            BASE_IMAGE=${{ fromJson(steps.demotags.outputs.tags)[0] }}
+            BASE_IMAGE=${{ fromJson(steps.jupyterhubtags.outputs.tags)[0] }}
           context: demo-image
           platforms: linux/amd64,linux/arm64
           push: true
