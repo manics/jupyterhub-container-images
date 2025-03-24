@@ -15,11 +15,6 @@
 # Or you can create your jupyterhub config and database on the host machine, and mount it with:
 #
 # docker run -v $PWD:/srv/jupyterhub -t quay.io/jupyterhub/jupyterhub
-#
-# NOTE
-# If you base on quay.io/jupyterhub/jupyterhub-onbuild
-# your jupyterhub_config.py will be added automatically
-# from your docker directory.
 
 ARG BASE_IMAGE=ubuntu:22.04
 
