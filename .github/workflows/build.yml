@@ -174,30 +174,6 @@ jobs:
           cache-from: ${{ env.CACHE_FROM }}
           cache-to: ${{ env.CACHE_TO }}
 
-      # image: env.IMAGE-onbuild
-      #
-      - name: Get list of jupyterhub-onbuild tags
-        id: onbuildtags
-        uses: jupyterhub/action-major-minor-tag-calculator@v3
-        with:
-          existingTags: ${{ needs.tag.outputs.existing-tags }}
-          newTag: ${{ needs.tag.outputs.new-tag }}
-          prefix: >-
-            ${{ env.REGISTRY }}${{ env.IMAGE }}-onbuild:
-            ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}-onbuild:', env.IMAGE) || '' }}
-
-      - name: Build and push jupyterhub-onbuild
-        uses: docker/build-push-action@v6
-        with:
-          build-args: |
-            BASE_IMAGE=${{ fromJson(steps.jupyterhubtags.outputs.tags)[0] }}
-          context: onbuild
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ join(fromJson(steps.onbuildtags.outputs.tags)) }}
-          cache-from: ${{ env.CACHE_FROM }}
-          cache-to: ${{ env.CACHE_TO }}
-
       # image: env.IMAGE-demo
       #
       - name: Get list of jupyterhub-demo tags
@@ -214,7 +190,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           build-args: |
-            BASE_IMAGE=${{ fromJson(steps.onbuildtags.outputs.tags)[0] }}
+            BASE_IMAGE=${{ fromJson(steps.jupyterhubtags.outputs.tags)[0] }}
           context: demo-image
           platforms: linux/amd64,linux/arm64
           push: true
