@@ -148,13 +148,14 @@ jobs:
       # this is a backported tag in which case the newer tags aren't updated.
       - name: Calculate tags
         id: jupyterhubtags
-        uses: jupyterhub/action-major-minor-tag-calculator@v3
+        uses: manics/action-major-minor-tag-calculator@prerelease-buildno
         with:
           existingTags: ${{ needs.tag.outputs.existing-tags }}
           newTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.IMAGE) || '' }}
+          prereleaseHasBuild: "true"
 
       - name: Print tags # zizmor: ignore[template-injection]
         run: |
@@ -178,13 +179,14 @@ jobs:
       #
       - name: Get list of jupyterhub-demo tags
         id: demotags
-        uses: jupyterhub/action-major-minor-tag-calculator@v3
+        uses: manics/action-major-minor-tag-calculator@prerelease-buildno
         with:
           existingTags: ${{ needs.tag.outputs.existing-tags }}
           newTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}-demo:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}-demo:', env.IMAGE) || '' }}
+          prereleaseHasBuild: "true"
 
       - name: Build and push jupyterhub-demo
         uses: docker/build-push-action@v6
@@ -202,13 +204,14 @@ jobs:
       #
       - name: Get list of jupyterhub/singleuser tags
         id: singleusertags
-        uses: jupyterhub/action-major-minor-tag-calculator@v3
+        uses: manics/action-major-minor-tag-calculator@prerelease-buildno
         with:
           existingTags: ${{ needs.tag.outputs.existing-tags }}
           newTag: ${{ needs.tag.outputs.new-tag }}
           prefix: >-
             ${{ env.REGISTRY }}${{ env.SINGLEUSER }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.SINGLEUSER) || '' }}
+          prereleaseHasBuild: "true"
 
       - name: Build and push jupyterhub/singleuser
         uses: docker/build-push-action@v6
