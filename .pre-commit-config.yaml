@@ -22,7 +22,7 @@ repos:
 
   # autoformat and lint Python code
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.4
+    rev: v0.11.4
     hooks:
       - id: ruff
         args: ["--select=I", "--fix", "--show-fixes"]
@@ -30,6 +30,6 @@ repos:
 
   # Static security analysis of GitHub actions https://github.com/woodruffw/zizmor
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.5.1
+    rev: v1.5.2
     hooks:
       - id: zizmor
