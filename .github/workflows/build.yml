@@ -152,6 +152,7 @@ jobs:
         with:
           existingTags: ${{ needs.tag.outputs.existing-tags }}
           newTag: ${{ needs.tag.outputs.new-tag }}
+          prereleaseHasBuild: "true"
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.IMAGE) || '' }}
@@ -182,6 +183,7 @@ jobs:
         with:
           existingTags: ${{ needs.tag.outputs.existing-tags }}
           newTag: ${{ needs.tag.outputs.new-tag }}
+          prereleaseHasBuild: "true"
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}-demo:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}-demo:', env.IMAGE) || '' }}
@@ -206,6 +208,7 @@ jobs:
         with:
           existingTags: ${{ needs.tag.outputs.existing-tags }}
           newTag: ${{ needs.tag.outputs.new-tag }}
+          prereleaseHasBuild: "true"
           prefix: >-
             ${{ env.REGISTRY }}${{ env.SINGLEUSER }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.SINGLEUSER) || '' }}
