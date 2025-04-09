@@ -155,6 +155,7 @@ jobs:
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.IMAGE) || '' }}
+          prereleaseHasBuild: "true"
 
       - name: Print tags # zizmor: ignore[template-injection]
         run: |
@@ -185,6 +186,7 @@ jobs:
           prefix: >-
             ${{ env.REGISTRY }}${{ env.IMAGE }}-demo:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}-demo:', env.IMAGE) || '' }}
+          prereleaseHasBuild: "true"
 
       - name: Build and push jupyterhub-demo
         uses: docker/build-push-action@v6
@@ -209,6 +211,7 @@ jobs:
           prefix: >-
             ${{ env.REGISTRY }}${{ env.SINGLEUSER }}:
             ${{ (env.PUBLIC == 'true' && env.PUBLISH_DOCKERIO == 'true') && format('{0}:', env.SINGLEUSER) || '' }}
+          prereleaseHasBuild: "true"
 
       - name: Build and push jupyterhub/singleuser
         uses: docker/build-push-action@v6
