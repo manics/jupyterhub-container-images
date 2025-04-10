@@ -77,7 +77,8 @@ jobs:
           # assume it's a backport branch which means we need to get all tags to work out
           # which MAJOR and MAJOR.MINOR aliases are needed.
           allTags: ${{ (github.ref != format('refs/heads/{0}', env.LATEST_BRANCH)) && (github.base_ref != format('refs/heads/{0}', env.LATEST_BRANCH)) }}
-          strict: "true"
+          # can't use strict when building prereleases
+          strict: "false"
 
       - name: Get new tag # zizmor: ignore[template-injection]
         id: new
