@@ -31,7 +31,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update -qq \
  && apt-get install -yqq --no-install-recommends \
-    build-essential \
     ca-certificates \
     curl \
     locales \
