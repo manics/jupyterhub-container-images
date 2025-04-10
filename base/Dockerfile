@@ -16,14 +16,18 @@
 #
 # docker run -v $PWD:/srv/jupyterhub -t quay.io/jupyterhub/jupyterhub
 
-ARG BASE_IMAGE=ubuntu:22.04
+# note: if changing BASE_IMAGE changes the Python version,
+# update version in .github/workflows/watch-dependencies.yaml
+ARG BASE_IMAGE=ubuntu:24.04
 
 ######################################################################
 # Ensure we have wheels for JupyterHub and all dependencies,
 # some are platform specific
 FROM $BASE_IMAGE AS wheel-builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    VIRTUAL_ENV=/tmp/build \
+    PATH=/srv/venv/bin:${PATH}
 
 RUN apt-get update -qq \
  && apt-get install -yqq --no-install-recommends \
@@ -35,7 +39,8 @@ RUN apt-get update -qq \
     python3-pip \
     python3-pycurl \
     python3-venv \
- && python3 -m pip install --no-cache-dir --upgrade setuptools pip build wheel
+ && python3 -m venv ${VIRTUAL_ENV} \
+ && ${VIRTUAL_ENV}/bin/python3 -m pip install --upgrade setuptools pip build wheel
 
 WORKDIR /src/jupyterhub
 COPY requirements.txt /src/jupyterhub/
@@ -54,7 +59,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    VIRTUAL_ENV=/srv/venv \
+    PATH=/srv/venv/bin:${PATH}
 
 EXPOSE 8000
 
@@ -72,6 +79,7 @@ RUN apt-get update -qq \
     python-is-python3 \
     python3-pip \
     python3-pycurl \
+    python3-venv \
     nodejs \
     npm \
  && locale-gen $LC_ALL \
@@ -80,8 +88,12 @@ RUN apt-get update -qq \
  && rm -rf /var/lib/apt/lists/* /var/log/* /var/tmp/* ~/.npm
 # install the wheels we built in the previous stage
 RUN --mount=type=cache,from=wheel-builder,source=/src/jupyterhub/wheelhouse,target=/tmp/wheelhouse \
+    # first make an env
+    # --system-site-packages lets us use pycurl from apt
+    python3 -m venv --system-site-packages ${VIRTUAL_ENV} \
+    # from here, `python3` is in the venv
     # always make sure pip is up to date!
-    python3 -m pip install --no-compile --no-cache-dir --upgrade setuptools pip \
+ && python3 -m pip install --no-compile --no-cache-dir --upgrade setuptools pip \
  && python3 -m pip install --no-compile --no-cache-dir /tmp/wheelhouse/*
 
 CMD ["jupyterhub"]
