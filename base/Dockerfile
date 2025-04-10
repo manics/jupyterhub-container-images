@@ -37,9 +37,9 @@ RUN apt-get update -qq \
     python3-dev \
     python3-pip \
     python3-pycurl \
-    python3-venv \
- && python3 -m venv ${VIRTUAL_ENV} \
- && ${VIRTUAL_ENV}/bin/python3 -m pip install --upgrade setuptools pip build wheel
+    python3-venv
+RUN python3 -m venv ${VIRTUAL_ENV}
+RUN ${VIRTUAL_ENV}/bin/python3 -m pip install --upgrade setuptools pip build wheel
 
 WORKDIR /src/jupyterhub
 COPY requirements.txt /src/jupyterhub/
@@ -80,11 +80,11 @@ RUN apt-get update -qq \
     python3-pycurl \
     python3-venv \
     nodejs \
-    npm \
- && locale-gen $LC_ALL \
- && npm install -g configurable-http-proxy@^4.6.2 \
+    npm
+RUN locale-gen $LC_ALL
+RUN npm install -g configurable-http-proxy@^4.6.2
  # clean cache and logs
- && rm -rf /var/lib/apt/lists/* /var/log/* /var/tmp/* ~/.npm
+RUN rm -rf /var/lib/apt/lists/* /var/log/* /var/tmp/* ~/.npm
 # install the wheels we built in the previous stage
 RUN --mount=type=cache,from=wheel-builder,source=/src/jupyterhub/wheelhouse,target=/tmp/wheelhouse \
     # first make an env

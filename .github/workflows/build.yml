@@ -168,7 +168,7 @@ jobs:
         uses: docker/build-push-action@v6 # zizmor: ignore[cache-poisoning]
         with:
           context: base
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           push: true
           # tags parameter must be a string input so convert `gettags` JSON
           # array into a comma separated list of tags
@@ -195,7 +195,7 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ fromJson(steps.jupyterhubtags.outputs.tags)[0] }}
           context: demo-image
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           push: true
           tags: ${{ join(fromJson(steps.demotags.outputs.tags)) }}
           cache-from: ${{ env.CACHE_FROM }}
@@ -220,7 +220,7 @@ jobs:
           build-args: |
             JUPYTERHUB_VERSION=${{ needs.tag.outputs.jupyterhub-version }}
           context: singleuser
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           push: true
           tags: ${{ join(fromJson(steps.singleusertags.outputs.tags)) }}
           cache-from: ${{ env.CACHE_FROM }}
