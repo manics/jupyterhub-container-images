@@ -24,7 +24,7 @@ attrs==26.1.0
     #   aiohttp
     #   jsonschema
     #   referencing
-certifi==2026.7.22
+certifi==2026.10.18
     # via requests
 certipy==0.2.3
     # via jupyterhub
@@ -52,7 +52,7 @@ isoduration==20.11.0
     # via jsonschema
 jinja2==3.1.6
     # via jupyterhub
-jsonpointer==3.2.1
+jsonpointer==3.3
     # via jsonschema
 jsonschema==4.26.0
     # via jupyter-events
@@ -129,7 +129,7 @@ six==1.17.0
     # via
     #   python-dateutil
     #   rfc3339-validator
-sqlalchemy==2.1.4
+sqlalchemy==2.1.5
     # via
     #   alembic
     #   jupyterhub
