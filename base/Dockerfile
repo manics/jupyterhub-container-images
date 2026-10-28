@@ -83,6 +83,9 @@ RUN apt-get update -qq \
     nodejs \
     npm \
  && locale-gen $LC_ALL \
+ # distribution pip uses system certs, bundled certifi is ignored
+ # delete to avoid false alerts in vulnerability scanners
+ && rm /usr/lib/python3/dist-packages/pip/_vendor/certifi/cacert.pem \
  # clean cache and logs
  && rm -rf /var/lib/apt/lists/* /var/log/* /var/tmp/*
 
